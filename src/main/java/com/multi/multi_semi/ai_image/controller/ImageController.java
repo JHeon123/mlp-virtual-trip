@@ -1,6 +1,7 @@
 package com.multi.multi_semi.ai_image.controller;
 
 import com.multi.multi_semi.ai_image.dto.AiImgDto;
+import com.multi.multi_semi.ai_image.service.AiImageService;
 import com.multi.multi_semi.ai_image.service.AsyncImageGenerationService;
 import com.multi.multi_semi.auth.dto.CustomUser;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ public class ImageController {
 
     // [변경] 기존 OpenAIService 대신 비동기 서비스를 주입받습니다.
     private final AsyncImageGenerationService asyncService;
+    private final AiImageService aiImgService;
 
     // [추가] 결과 저장소를 주입받습니다.
     private final Map<String, GenerationStatus> taskResults;
@@ -110,6 +112,20 @@ public class ImageController {
 
 
         return ResponseEntity.ok(imageList);
+    }
+
+
+    @DeleteMapping("/ai-images")
+    public ResponseEntity<?> deleteAiImage(
+            @RequestBody AiImgDto requestDto, // JSON으로 { "orgUrl": "..." } 받을 예정
+            @AuthenticationPrincipal CustomUser customUser
+    ) {
+        // 로그인한 유저의 이메일 강제 주입 (보안)
+        String email = customUser.getEmail();
+
+        aiImgService.deleteImage(email, requestDto.orgUrl());
+
+        return ResponseEntity.ok("Deleted successfully");
     }
 
 

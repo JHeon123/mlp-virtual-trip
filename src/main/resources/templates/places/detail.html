@@ -141,6 +141,18 @@
             font-weight: 600;
         }
 
+        /* 날씨 정보 스타일 */
+        .weather-info {
+            text-align: center;
+            font-size: 1.2em;
+            color: #555;
+        }
+        .weather-icon {
+            font-size: 48px; /* 이모지 크기 */
+            display: block;
+            margin-bottom: 10px;
+        }
+
         a.home-link {
             display: inline-block;
             margin-top: 24px;
@@ -217,6 +229,7 @@
 
                 initReview(1);
                 initMap(place.lat, place.lng);
+                // ★ 날씨 로딩
                 initWeather(place.lat, place.lng);
             }
         } catch (error) {
@@ -232,18 +245,23 @@
         marker.setMap(map);
     }
 
+    // ★ [수정] 프론트엔드에서 직접 호출 + 이모지 변환
     function initWeather(lat, lng) {
         const info = $('#weatherInfo');
         info.html("<p>날씨 정보를 불러오는 중...</p>");
 
+        // https로 변경 (보안 및 혼합 콘텐츠 차단 방지)
         $.ajax({
-            url: `http://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&lang=kr&appid=a1960ea44c537a51418257f763c42f66`,
+            url: `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&lang=kr&appid=a1960ea44c537a51418257f763c42f66`,
             dataType: 'json',
             success: function (data) {
+                // ★ 여기가 문제였습니다: getWeatherIcon 함수가 없었음 -> 아래에 추가함
+                // data.weather[0].main 값(Clear, Rain 등)을 넘겨줍니다.
                 const icon = getWeatherIcon(data.weather[0].main);
+
                 info.html(`
-                    <span class="weather-icon">${icon}</span> 현재 날씨<br>
-                    ${data.weather[0].description}<br>
+                    <span class="weather-icon">${icon}</span>
+                    <strong>${data.weather[0].description}</strong><br><br>
                     🌡 최고: ${data.main.temp_max}°C / 최저: ${data.main.temp_min}°C<br>
                     💨 풍속: ${data.wind.speed} m/s<br>
                     체감온도: ${data.main.feels_like}°C<br>
@@ -254,6 +272,29 @@
                 info.html("날씨 정보를 불러오지 못했습니다.");
             }
         });
+    }
+
+    // ★ [신규 추가] 날씨 상태(main)를 이모지로 바꿔주는 함수
+    function getWeatherIcon(weatherMain) {
+        // OpenWeatherMap의 Main 상태값에 따라 이모지 리턴
+        switch (weatherMain) {
+            case 'Clear': return '☀️';
+            case 'Clouds': return '☁️';
+            case 'Rain': return '🌧️';
+            case 'Snow': return '☃️';
+            case 'Thunderstorm': return '⚡';
+            case 'Drizzle': return '🌦️';
+            case 'Mist':
+            case 'Smoke':
+            case 'Haze':
+            case 'Dust':
+            case 'Fog':
+            case 'Sand':
+            case 'Ash':
+            case 'Squall':
+            case 'Tornado': return '🌫️';
+            default: return '🌈';
+        }
     }
 
     async function initReview(offset) {
@@ -327,7 +368,7 @@
             });
         });
 
-        /* ⭐⭐⭐ 즐겨찾기 등록 이벤트 (중복 체크 포함) */
+        /* 즐겨찾기 등록 이벤트 */
         document.getElementById('placeFavorite').addEventListener('click', async (event) => {
             const btn = event.target.closest('.favorite-btn');
             if (!btn) return;

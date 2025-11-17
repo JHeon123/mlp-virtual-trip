@@ -11,10 +11,17 @@
             gap: 15px; /* 이미지 사이의 간격 */
         }
 
-        /* 개별 이미지 스타일 */
-        #my-image-container img {
+        /* [신규] 이미지와 삭제 버튼을 감싸는 래퍼 */
+        .img-wrapper {
+            position: relative; /* 자식(삭제버튼)의 위치 기준점 */
             width: 250px;
             height: 250px;
+        }
+
+        /* [수정] 개별 이미지 스타일 (래퍼에 맞춰 꽉 차게 수정) */
+        .img-wrapper img {
+            width: 100%;
+            height: 100%;
             object-fit: cover; /* 비율을 유지하며 꽉 채우기 */
             border: 1px solid #ddd;
             border-radius: 8px; /* 모서리 둥글게 */
@@ -22,14 +29,45 @@
             transition: transform 0.2s;
         }
 
-        #my-image-container img:hover {
-            transform: scale(1.03); /* 마우스 오버 시 살짝 확대 */
+        /* 마우스 오버 시 살짝 확대 효과는 유지 */
+        .img-wrapper:hover img {
+            transform: scale(1.03);
         }
+
+        /* [수정] 삭제 버튼 (X) 스타일 */
+        .delete-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background-color: rgba(0, 0, 0, 0.6); /* 반투명 검정 배경 */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 25px;
+            height: 25px;
+            cursor: pointer;
+            display: flex; /* 글자(X) 중앙 정렬 */
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            opacity: 1; /* 항상 보이도록 opacity를 1로 변경 */
+            /* transition: opacity 0.2s; - 더 이상 필요 없지만 있어도 무방 */
+            z-index: 10; /* 이미지보다 위에 뜨도록 */
+        }
+
+        /* [삭제] 마우스 올렸을 때만 X 버튼 보이기 CSS는 이제 필요 없음 */
+        /*
+        .img-wrapper:hover .delete-btn {
+            opacity: 1;
+        }
+        */
 
         /* 메시지 스타일 */
         .status-message {
             font-size: 1.1em;
             color: #555;
+            width: 100%; /* 메시지는 한 줄 차지 */
         }
         .error-message {
             color: red;
@@ -48,6 +86,7 @@
             const container = document.getElementById("my-image-container");
             const loadingMessage = document.getElementById("loading-message");
 
+            // 1. 내 이미지 목록 불러오기
             fetch("/api/v1/ai-images/my")
                 .then(response => {
                     if (!response.ok) {
@@ -56,18 +95,8 @@
                     return response.json();
                 })
                 .then(imageList => {
-                    // =======================================================
-                    // [디버깅 코드 추가]
 
-                    // 1. 개발자 도구(F12) 콘솔에 수신된 데이터를 그대로 출력합니다.
-                    console.log("서버로부터 받은 데이터:", imageList);
-
-                    // 2. (중요) 코드 실행을 여기서 잠시 멈춥니다.
-                    //    F12 개발자 도구를 열어둔 상태에서만 작동합니다.
-                    debugger;
-
-                    // =======================================================
-
+                    // 로딩 메시지 숨김
                     loadingMessage.style.display = "none";
 
                     if (!imageList || imageList.length === 0) {
@@ -75,24 +104,65 @@
                         return;
                     }
 
+                    // 2. 받아온 이미지 목록을 화면에 그리기
                     imageList.forEach(imageDto => {
-                        // 3. 콘솔에 이 루프가 도는지, DTO가 뭔지 확인
-                        console.log("이미지 DTO 확인:", imageDto);
 
+                        // (A) 래퍼(Wrapper) div 생성
+                        const wrapper = document.createElement("div");
+                        wrapper.className = "img-wrapper";
+
+                        // (B) 이미지 태그 생성
                         const imgElement = document.createElement("img");
-
-                        // 4. 여기에 브레이크포인트를 걸거나 콘솔로 확인
-                        console.log("img.src에 할당할 값:", imageDto.orgUrl);
-
-                        imgElement.src = imageDto.orgUrl; // <-- 여기가 정말 이 코드인지 확인
-
+                        imgElement.src = imageDto.orgUrl;
                         imgElement.alt = "AI 생성 이미지";
-                        container.appendChild(imgElement);
+
+                        // (C) 삭제 버튼 생성
+                        const deleteBtn = document.createElement("button");
+                        deleteBtn.className = "delete-btn";
+                        deleteBtn.innerText = "X";
+
+                        // (D) 삭제 버튼 클릭 이벤트 핸들러
+                        deleteBtn.onclick = function() {
+                            if(!confirm("정말 이 이미지를 삭제하시겠습니까?")) return;
+
+                            // 삭제 API 호출
+                            fetch("/api/v1/ai-images", { // 경로에 /delete가 제거된 것을 확인
+                                method: "DELETE",
+                                headers: {
+                                    "Content-Type": "application/json"
+                                },
+                                // DTO 필드명(orgUrl)에 맞춰서 JSON 전송
+                                body: JSON.stringify({ orgUrl: imageDto.orgUrl })
+                            })
+                                .then(res => {
+                                    if(res.ok) {
+                                        alert("삭제되었습니다.");
+                                        wrapper.remove(); // 화면에서 즉시 제거
+
+                                        // 다 지워서 하나도 없으면 메시지 띄우기
+                                        if(container.children.length === 0) {
+                                            container.innerHTML = '<p class="status-message">아직 생성한 이미지가 없습니다.</p>';
+                                        }
+                                    } else {
+                                        alert("삭제 실패: 서버 오류");
+                                    }
+                                })
+                                .catch(err => {
+                                    console.error(err);
+                                    alert("오류 발생: " + err.message);
+                                });
+                        };
+
+                        // (E) 조립 (wrapper 안에 이미지와 버튼 넣기)
+                        wrapper.appendChild(imgElement);
+                        wrapper.appendChild(deleteBtn);
+
+                        // (F) 컨테이너에 wrapper 추가
+                        container.appendChild(wrapper);
                     });
                 })
                 .catch(error => {
-                    // 5. 에러가 나면 여기도 찍힙니다.
-                    console.error("Fetch 또는 .then 블록 에러:", error);
+                    console.error("Fetch 에러:", error);
 
                     if (loadingMessage) {
                         loadingMessage.style.display = "none";

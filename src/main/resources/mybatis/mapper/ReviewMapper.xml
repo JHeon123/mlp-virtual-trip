@@ -130,15 +130,14 @@
         SELECT
             p.no           AS placeNo,
             p.title        AS placeTitle,
-            SUM(r.rate)    AS rateSum,
-            COUNT(*)       AS rateCount,
-            MAX(r.img_url) AS imgUrl
+            AVG(r.rate)    AS avgRate,
+            COUNT(r.no)    AS rateCount,
+            p.first_img    AS imgUrl
         FROM rev r
-                 JOIN place p ON r.place_no = p.no
-        GROUP BY p.no, p.title
-        HAVING COUNT(*) > 0
-        ORDER BY (SUM(r.rate) * 1.0 / COUNT(*)) DESC
-            LIMIT #{limit}
+        JOIN place p ON r.place_no = p.no
+        GROUP BY p.no, p.title, p.first_img
+        ORDER BY avgRate DESC, rateCount DESC
+        LIMIT #{limit}
     </select>
 
     <select id="findPlaceRatingAgg"

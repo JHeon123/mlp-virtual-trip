@@ -19,7 +19,7 @@ public class TopRatedPlaceDto {
     private Long rateSum;
     private Long rateCount;
 
-    // 대표 이미지 (리뷰 이미지 중 하나)
+    // 관광지 이미지
     private String imgUrl;
 
     // Service에서 계산해서 세팅해 줄 평균 평점

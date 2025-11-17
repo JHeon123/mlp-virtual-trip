@@ -20,7 +20,7 @@ public class RatingListController {
 
     @GetMapping("/rating")
     public ResponseEntity<ResponseDto> getTop5() {
-        List<TopRatedPlaceDto> top5 = ratingService.getTopRatedPlaces(5);
+        List<TopRatedPlaceDto> top5 = ratingService.getTopRatedPlaces(3);
         return ResponseEntity.ok(
                 new ResponseDto(HttpStatus.OK, "평점 TOP5 조회 성공", top5)
         );

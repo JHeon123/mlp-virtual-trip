@@ -20,4 +20,10 @@
             created_at DESC /* (최신순 정렬 권장) */
     </select>
 
+
+    <delete id="deleteAiImg">
+        DELETE FROM ai_img
+        WHERE mem_email = #{memEmail}
+          AND org_url = #{orgUrl}
+    </delete>
 </mapper>
