@@ -17,9 +17,9 @@ public class RatingListServiceImpl implements RatingListService {
     public List<TopRatedPlaceDto> getTopRatedPlaces(int limit) {
         List<TopRatedPlaceDto> list = reviewMapper.findTopRatedPlaceAgg(limit);  // 또는 네가 만든 집계 쿼리
 
-        for (TopRatedPlaceDto dto : list) {
-            fillAvgRate(dto);   // ★ 여기서 평균/반올림까지 완성
-        }
+//        for (TopRatedPlaceDto dto : list) {
+//            fillAvgRate(dto);   // ★ 여기서 평균/반올림까지 완성
+//        }
         return list;
     }
 

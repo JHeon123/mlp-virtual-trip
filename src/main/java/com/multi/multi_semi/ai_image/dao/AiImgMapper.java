@@ -13,4 +13,6 @@ public interface AiImgMapper {
     void insertAiImg(AiImgDto dto);
 
     List<AiImgDto> findByEmail(String memEmail);
+
+    void deleteAiImg(AiImgDto dto);
 }
