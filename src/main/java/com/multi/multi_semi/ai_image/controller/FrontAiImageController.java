@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @RequiredArgsConstructor
-public class FrontImageController {
+public class FrontAiImageController {
 
     // "이미지 생성" 화면
     @GetMapping("/generate-request")

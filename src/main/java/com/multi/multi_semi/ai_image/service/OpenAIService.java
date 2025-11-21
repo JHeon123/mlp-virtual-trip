@@ -28,13 +28,15 @@ public class OpenAIService {
 
     private final ObjectMapper mapper = new ObjectMapper();
 
-    /** * STEP 1️⃣ : GPT-4o로 두 이미지를 분석해 합성용 설명 프롬프트 생성
-     * [수정됨] MultipartFile 대신 byte[]를 직접 받습니다.
-     */
+    // 전체 프로세스
+    public String processFusion(byte[] img1Bytes, byte[] img2Bytes, String userPrompt) throws Exception {
+        String prompt = createCompositePrompt(img1Bytes, img2Bytes, userPrompt);
+        return generateImageFromPrompt(prompt);
+    }
+
+    // GPT-4o로 두 이미지를 분석해 합성용 설명 프롬프트 생성
     private String createCompositePrompt(byte[] img1Bytes, byte[] img2Bytes, String userPrompt) throws Exception {
 
-        // [수정됨]
-        // img1.getBytes() 호출(오류 지점) 대신, 파라미터로 받은 byte[]를 바로 인코딩합니다.
         String base64Img1 = Base64.getEncoder().encodeToString(img1Bytes);
         String base64Img2 = Base64.getEncoder().encodeToString(img2Bytes);
 
@@ -63,7 +65,6 @@ public class OpenAIService {
             var response = client.execute(post);
             JsonNode json = mapper.readTree(response.getEntity().getContent());
 
-            // ✅ 콘솔 로그
             System.out.println("\n========== GPT-4o API RESPONSE ==========");
             System.out.println(json.toPrettyString());
             System.out.println("========================================\n");
@@ -90,17 +91,18 @@ public class OpenAIService {
         }
     }
 
-    /** STEP 2️⃣ : DALL-E-3 모델로 실제 합성 이미지 생성 */
+    // DALL-E-3 모델로 실제 합성 이미지 생성
     private String generateImageFromPrompt(String finalPrompt) throws Exception {
+
         String safePrompt = mapper.writeValueAsString(finalPrompt);
 
         String requestBody = """
-    {
-      "model": "dall-e-3",
-      "prompt": %s,
-      "size": "1024x1024"
-    }
-    """.formatted(safePrompt);
+        {
+          "model": "dall-e-3",
+          "prompt": %s,
+          "size": "1024x1024"
+        }
+        """.formatted(safePrompt);
 
         try (CloseableHttpClient client = HttpClients.createDefault()) {
             HttpPost post = new HttpPost(imageUrl);
@@ -129,17 +131,8 @@ public class OpenAIService {
                 throw new IllegalStateException("응답에 이미지 데이터가 없습니다: " + json.toPrettyString());
             }
 
-            // ✅ URL 반환
+            // 생성한 이미지 URL 반환
             return dataArray.get(0).path("url").asText();
         }
-    }
-
-
-    /** * STEP 🔁 전체 프로세스
-     * [수정됨] MultipartFile 대신 byte[]를 직접 받습니다.
-     */
-    public String processFusion(byte[] img1Bytes, byte[] img2Bytes, String userPrompt, String email) throws Exception {
-        String prompt = createCompositePrompt(img1Bytes, img2Bytes, userPrompt);
-        return generateImageFromPrompt(prompt);
     }
 }
