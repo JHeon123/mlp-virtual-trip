@@ -19,7 +19,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AsyncAiImageGenerationService {
 
-    private final OpenAiService openAIService;
+    // private final OpenAiService openAIService;
+    private final WebClientOpenAiService webClientOpenAiService;
     private final AiImageService aiImageService;
     private final Map<String, GenerationStatus> taskResults;
 
@@ -39,7 +40,7 @@ public class AsyncAiImageGenerationService {
     public void generateImageAsync(String taskId, byte[] image1Bytes, byte[] image2Bytes, String prompt, String email) {
         try {
             // 1. OpenAI로부터 이미지 생성 (OpenAI가 반환한 웹 URL. 1시간만 유효함)
-            String openAiImageUrl = openAIService.processFusion(image1Bytes, image2Bytes, prompt);
+            String openAiImageUrl = webClientOpenAiService.processFusion(image1Bytes, image2Bytes, prompt);
 
             // 2. 랜덤한 파일명 생성 (예: abcd.png)
             String newFileName = UUID.randomUUID().toString() + ".png";
