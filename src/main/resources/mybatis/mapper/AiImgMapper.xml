@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.multi.multi_semi.ai_image.dao.AiImgMapper">
+<mapper namespace="com.multi.multi_semi.ai_image.dao.AiImageMapper">
 
-    <insert id="insertAiImg" parameterType="com.multi.multi_semi.ai_image.dto.AiImgDto">
+    <insert id="insertAiImage" parameterType="com.multi.multi_semi.ai_image.dto.AiImageDto">
         INSERT INTO ai_img (mem_email, org_url, thum_url, created_at)
         VALUES (#{memEmail}, #{orgUrl}, #{orgUrl}, NOW())
     </insert>
 
-    <select id="findByEmail" resultType="com.multi.multi_semi.ai_image.dto.AiImgDto">
+    <select id="findByEmail" resultType="com.multi.multi_semi.ai_image.dto.AiImageDto">
         SELECT
             mem_email, org_url
         /*, created_at (만약 생성일 컬럼이 있다면) */
@@ -21,7 +21,7 @@
     </select>
 
 
-    <delete id="deleteAiImg">
+    <delete id="deleteAiImage">
         DELETE FROM ai_img
         WHERE mem_email = #{memEmail}
           AND org_url = #{orgUrl}
