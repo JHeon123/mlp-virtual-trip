@@ -19,7 +19,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class AsyncAiImageGenerationService {
 
-    private final OpenAIService openAIService;
+    private final OpenAiService openAIService;
     private final AiImageService aiImageService;
     private final Map<String, GenerationStatus> taskResults;
 
