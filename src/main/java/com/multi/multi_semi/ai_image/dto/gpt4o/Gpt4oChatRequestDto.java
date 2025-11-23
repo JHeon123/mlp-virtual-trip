@@ -13,7 +13,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Gpt4oChatRequest {
+public class Gpt4oChatRequestDto {
 
     private String model;
     private List<Message> messages;

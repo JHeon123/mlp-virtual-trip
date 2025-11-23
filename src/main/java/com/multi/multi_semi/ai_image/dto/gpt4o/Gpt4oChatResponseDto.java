@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class Gpt4oChatResponse {
+public class Gpt4oChatResponseDto {
 
     private List<Choice> choices;
 

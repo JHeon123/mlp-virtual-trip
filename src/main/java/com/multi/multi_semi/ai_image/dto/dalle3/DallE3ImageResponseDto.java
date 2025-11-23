@@ -9,7 +9,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DallE3ImageResponse {
+public class DallE3ImageResponseDto {
 
     private List<ImageData> data;
 

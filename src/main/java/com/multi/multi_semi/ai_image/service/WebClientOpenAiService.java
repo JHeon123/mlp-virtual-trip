@@ -1,10 +1,10 @@
 package com.multi.multi_semi.ai_image.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.multi.multi_semi.ai_image.dto.dalle3.DallE3ImageRequest;
-import com.multi.multi_semi.ai_image.dto.dalle3.DallE3ImageResponse;
-import com.multi.multi_semi.ai_image.dto.gpt4o.Gpt4oChatRequest;
-import com.multi.multi_semi.ai_image.dto.gpt4o.Gpt4oChatResponse;
+import com.multi.multi_semi.ai_image.dto.dalle3.DallE3ImageRequestDto;
+import com.multi.multi_semi.ai_image.dto.dalle3.DallE3ImageResponseDto;
+import com.multi.multi_semi.ai_image.dto.gpt4o.Gpt4oChatRequestDto;
+import com.multi.multi_semi.ai_image.dto.gpt4o.Gpt4oChatResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -48,26 +48,26 @@ public class WebClientOpenAiService {
         // HTTP요청 바디 생성
         // 기존의 형식에서 input -> messages, type에서 input_url -> image_url로 수정
         // DTO 빌더를 사용하여 요청 객체 생성
-        Gpt4oChatRequest requestDto = Gpt4oChatRequest.builder()
+        Gpt4oChatRequestDto requestDto = Gpt4oChatRequestDto.builder()
                 .model("gpt-4o-mini")
                 .messages(List.of(
-                        Gpt4oChatRequest.Message.builder()
+                        Gpt4oChatRequestDto.Message.builder()
                                 .role("user")
                                 .content(List.of(
                                         // 텍스트
-                                        Gpt4oChatRequest.Content.builder()
+                                        Gpt4oChatRequestDto.Content.builder()
                                                 .type("text")
                                                 .text(String.format("아래 두 이미지를 자연스럽게 조합해서 '%s' 요구사항을 만족하는 DALL-E용 프롬프트를 만들어줘. 배경, 조명, 색감, 구도 등 시각적 요소를 가능한 한 자세히 작성해.", userPrompt))
                                                 .build(),
                                         // 이미지 1
-                                        Gpt4oChatRequest.Content.builder()
+                                        Gpt4oChatRequestDto.Content.builder()
                                                 .type("image_url")
-                                                .imageUrl(new Gpt4oChatRequest.ImageUrl("data:image/png;base64," + base64Img1))
+                                                .imageUrl(new Gpt4oChatRequestDto.ImageUrl("data:image/png;base64," + base64Img1))
                                                 .build(),
                                         // 이미지 2
-                                        Gpt4oChatRequest.Content.builder()
+                                        Gpt4oChatRequestDto.Content.builder()
                                                 .type("image_url")
-                                                .imageUrl(new Gpt4oChatRequest.ImageUrl("data:image/png;base64," + base64Img2))
+                                                .imageUrl(new Gpt4oChatRequestDto.ImageUrl("data:image/png;base64," + base64Img2))
                                                 .build()
                                 ))
                                 .build()
@@ -76,13 +76,13 @@ public class WebClientOpenAiService {
 
         try {
             // WebClient를 사용한 HTTP POST 요청 구성 및 실행
-            Gpt4oChatResponse response = webClient.post()
+            Gpt4oChatResponseDto response = webClient.post()
                     .uri(gpt4oUrl)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDto)
                     .retrieve()
-                    .bodyToMono(Gpt4oChatResponse.class) // 응답 본문을 JsonNode로 자동 매핑
+                    .bodyToMono(Gpt4oChatResponseDto.class) // 응답 본문을 JsonNode로 자동 매핑
                     .block(); // 비동기(Mono)를 동기적으로 기다려 결과를 반환
 
 
@@ -115,7 +115,7 @@ public class WebClientOpenAiService {
 
         // HTTP요청 바디 생성
         // DTO 빌더 사용 (자동 이스케이프 처리됨)
-        DallE3ImageRequest requestDto = DallE3ImageRequest.builder()
+        DallE3ImageRequestDto requestDto = DallE3ImageRequestDto.builder()
                 .model("dall-e-3")
                 .prompt(finalPrompt)
                 .size("1024x1024")
@@ -123,13 +123,13 @@ public class WebClientOpenAiService {
 
         // WebClient를 사용한 HTTP POST 요청 구성 및 실행
         try {
-            DallE3ImageResponse response = webClient.post()
+            DallE3ImageResponseDto response = webClient.post()
                     .uri(imageUrl)
                     .header(HttpHeaders.AUTHORIZATION, "Bearer " + apiKey)
                     .contentType(MediaType.APPLICATION_JSON)
                     .bodyValue(requestDto)
                     .retrieve()
-                    .bodyToMono(DallE3ImageResponse.class)
+                    .bodyToMono(DallE3ImageResponseDto.class)
                     .block();
 
             System.out.println("\n========== IMAGE API RESPONSE ==========");

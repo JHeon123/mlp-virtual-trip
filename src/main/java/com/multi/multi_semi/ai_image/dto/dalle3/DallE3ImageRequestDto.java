@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DallE3ImageRequest {
+public class DallE3ImageRequestDto {
     private String model;
     private String prompt;
     private String size; // "1024x1024"
