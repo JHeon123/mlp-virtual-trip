@@ -1,7 +1,6 @@
 package com.multi.multi_semi.auth.controller;
 
 
-import com.multi.multi_semi.auth.dto.CustomUser;
 import com.multi.multi_semi.auth.service.AuthService;
 import com.multi.multi_semi.common.ResponseDto;
 import com.multi.multi_semi.common.jwt.TokenProvider;
@@ -15,13 +14,11 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.http.ResponseEntity.ok;
 
 @RestController
-//@RequestMapping("/api/v1")
 @RequiredArgsConstructor
 @Slf4j
 public class AuthController {
@@ -87,7 +84,6 @@ public class AuthController {
     public ResponseEntity<ResponseDto> refresh(
             @RequestHeader("Authorization") String expiredAccessToken, // 만료된 엑세스 토큰은 헤더로
             @CookieValue("refreshToken") String clientRefreshToken         // 리프레시 토큰은 쿠키로
-            , @AuthenticationPrincipal CustomUser customUser
             ) {
         // 리프레시 토큰 검증 후 엑세스 토큰 재발급
         String newAccessToken = tokenService.refreshAccessToken(expiredAccessToken, clientRefreshToken);

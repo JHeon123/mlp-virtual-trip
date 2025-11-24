@@ -41,7 +41,7 @@
             (#{id},#{name},#{uuid},#{email})
     </insert>
 
-    <update id="updateUuidByNo" parameterType="MemberDto">
+    <update id="updateUuidByNo">
         update mem
         set uuid = #{uuid}
         where no = #{no}

@@ -30,6 +30,7 @@ public class TokenService {
     @Transactional(noRollbackFor = RefreshTokenException.class)
     public TokenDto createTokenForLogin(Map<String, Object> loginData) {
 
+        Long memberNo = (Long) loginData.get("no");
         String memberEmail = (String) loginData.get("email");
         List<String> roles = (List<String>) loginData.get("roles");
 
@@ -37,7 +38,7 @@ public class TokenService {
         log.info("Map Roles >>>>>>>>>>> {}", roles);
 
         String refreshToken = handleRefreshTokenForLogin(memberEmail);
-        String accessToken = tokenProvider.generateToken(memberEmail, roles, "A"); // 엑세스 토큰 생성 요청
+        String accessToken = tokenProvider.generateToken(memberNo, memberEmail, roles, "A"); // 엑세스 토큰 생성 요청
 
         return TokenDto.builder()
                 .accessToken(accessToken)
@@ -72,7 +73,7 @@ public class TokenService {
 
         // (토큰이 아예 없거나, 위에서 만료되어 삭제된 경우 실행됨)
         log.info("새 Refresh Token 발급. email: {}", memberEmail);
-        String newRefreshToken = tokenProvider.generateToken(memberEmail, null, "R");
+        String newRefreshToken = tokenProvider.generateToken(null, memberEmail, null, "R");
 
         if (tokenProvider.validateToken(newRefreshToken)) { // 생성된 RT가 유효한지 확인
             RefreshToken newRefreshTokenDto = RefreshToken.builder()
@@ -115,6 +116,12 @@ public class TokenService {
         Claims claims = tokenProvider.parseClaims(jwt); // 만료된 토큰도 parseClaims는 정보를 꺼내줌
         String memberEmail = claims.getSubject(); // 이메일
 
+        // [수정] "no" 클레임 추출
+        Long memberNo = claims.get(TokenProvider.MEMBER_NO_KEY, Long.class);
+        if (memberNo == null) {
+            throw new RefreshTokenException("Access Token에 필수 정보(no)가 없습니다.");
+        }
+
         String roleString = (String) claims.get(TokenProvider.AUTHORITIES_KEY); // 권한
         if (roleString == null) {
             throw new RefreshTokenException("Access Token에 권한 정보(auth)가 없습니다.");
@@ -150,7 +157,7 @@ public class TokenService {
 
         // 4. 모든 검증 통과: 새 Access Token만 발급
         log.info("Refresh Token 검증 성공. 새 Access Token 발급. email: {}", memberEmail);
-        return tokenProvider.generateToken(memberEmail, roles, "A");
+        return tokenProvider.generateToken(memberNo, memberEmail, roles, "A");
     }
 
 

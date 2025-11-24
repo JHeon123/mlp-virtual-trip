@@ -1,7 +1,11 @@
 package com.multi.multi_semi.auth.service;
 
 
-import com.multi.multi_semi.common.exception.*;
+import com.multi.multi_semi.auth.dto.CustomUser;
+import com.multi.multi_semi.common.exception.DuplicateUserEmailException;
+import com.multi.multi_semi.common.exception.DuplicateUserIdException;
+import com.multi.multi_semi.common.exception.InvalidPasswordException;
+import com.multi.multi_semi.common.exception.MemberRegistrationException;
 import com.multi.multi_semi.common.jwt.dto.TokenDto;
 import com.multi.multi_semi.common.jwt.service.TokenService;
 import com.multi.multi_semi.member.dao.MemberMapper;
@@ -19,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthService {
 
@@ -28,7 +33,6 @@ public class AuthService {
     private final TokenService tokenService;
 
 
-    @Transactional
     public int signup(MemberReqDto memberReqDto) {
         if(memberReqDto.getPwd() == null || memberReqDto.getPwd().isEmpty() || memberReqDto.getPwd().length() < 8){
             throw new InvalidPasswordException("비밀번호는 8자리 이상이어야 합니다.");
@@ -50,7 +54,6 @@ public class AuthService {
     }
 
     // 이메일, 비밀번호 직접 입력하여 로그인
-    @Transactional
     public TokenDto login(MemberReqDto memberReqDto) {
         UserDetails userDetails = customUserDetailService.loadUserByUsername(memberReqDto.getEmail());
 
@@ -59,16 +62,18 @@ public class AuthService {
             throw new BadCredentialsException("이메일 또는 비밀번호를 확인해주세요.");
         }
 
+        CustomUser customUser = (CustomUser) userDetails;
+
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .toList();
 
         Map<String , Object> loginData = new HashMap<>();
-        loginData.put("email", memberReqDto.getEmail());
+        loginData.put("no", customUser.getNo());
+        loginData.put("email", customUser.getEmail());
         loginData.put("roles", roles);
 
         TokenDto tokenDto = tokenService.createTokenForLogin(loginData);
         return tokenDto;
-
     }
 }

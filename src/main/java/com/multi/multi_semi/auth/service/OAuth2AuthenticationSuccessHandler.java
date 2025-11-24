@@ -41,14 +41,17 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         CustomUser customUser = oAuth2User.getCustomUser();
 
         String email = customUser.getUsername(); // getUsername()이 email을 반환
+        Long memberNo = customUser.getNo();
         List<String> roles = customUser.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        log.info("OAuth2 로그인 성공. 이메일: {}, 권한: {}", email, roles);
+
+        log.info("OAuth2 로그인 성공. no: {}, 이메일: {}, 권한: {}", memberNo, email, roles);
 
         // 2. 님의 AuthService.login()과 동일하게 TokenService 호출 준비
         Map<String, Object> loginData = new HashMap<>();
+        loginData.put("no", memberNo);
         loginData.put("email", email);
         loginData.put("roles", roles);
 

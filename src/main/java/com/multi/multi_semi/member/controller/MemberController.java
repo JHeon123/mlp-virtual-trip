@@ -41,6 +41,7 @@ public class MemberController {
     @GetMapping("/members")
     public ResponseEntity<ResponseDto> findMemberByEmail(@AuthenticationPrincipal CustomUser customUser){
         System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>> customUser = " + customUser);
+        System.out.println(">>>>>>>>>>>>>> no : " + customUser.getNo());
         String email = customUser.getEmail();
 
         Optional<MemberDto> member = memberService.findMemberByEmail(email);
@@ -99,17 +100,6 @@ public class MemberController {
                 .body("회원탈퇴, 로그아웃 성공 및 Refresh Token 삭제 완료");
 
     }
-
-
-
-    @PatchMapping("/admin/members/{email}/edit-info")
-    public ResponseEntity<ResponseDto> adminUpdateMemberInfo(@PathVariable("email") String email, @RequestBody UpdateMemberReqDto updateMemberReqDto){
-
-        memberService.updateMemberInfo(email, updateMemberReqDto);
-
-        return ResponseEntity.ok(new ResponseDto(HttpStatus.OK, "회원정보 수정 성공(관리자)", null));
-    }
-
 
     @GetMapping("/members/me")
     public ResponseEntity<?> getCurrentUser(@AuthenticationPrincipal CustomUser customUser) {
