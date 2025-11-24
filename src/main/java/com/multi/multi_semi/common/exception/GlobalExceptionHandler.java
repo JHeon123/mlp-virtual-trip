@@ -66,4 +66,12 @@ public class GlobalExceptionHandler {
                 .body(new ApiExceptionDto(HttpStatus.UNAUTHORIZED, e.getMessage()));
     }
 
+    @ExceptionHandler(MemberNotFoundException.class)
+    public ResponseEntity<ApiExceptionDto> memberNotFoundException(MemberNotFoundException e) {
+        e.printStackTrace();
+        return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body(new ApiExceptionDto(HttpStatus.NOT_FOUND, e.getMessage()));
+    }
+
 }

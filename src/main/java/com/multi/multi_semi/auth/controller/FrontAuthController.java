@@ -34,11 +34,8 @@ public class FrontAuthController {
 
     // 만료된 엑세스토큰으로 서버 접근 시 header.html의 js가 정상작동 되는지 테스트
     @GetMapping("/refresh/test")
-    @ResponseBody // 이 어노테이션이 객체를 JSON으로 반환하게 합니다.
+    @ResponseBody
     public ResponseEntity<?> refreshTokenTest() {
-
-        // "ok"라는 단순한 JSON 객체를 반환합니다.
-        // Map.of("message", "Token is valid or has been refreshed")
         return ResponseEntity.ok(Map.of("message", "success"));
     }
 }

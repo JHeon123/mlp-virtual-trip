@@ -43,7 +43,7 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         log.info("Google 로그인 시도: email={}, name={}", email, name);
 
         // 2. DB에서 이메일로 회원 조회
-        Optional<MemberDto> findMember = memberMapper.findMemberByEmail(email);
+        Optional<MemberDto> findMember = memberMapper.findMemberForAuthByEmail(email);
 
         MemberDto memberDto;
 

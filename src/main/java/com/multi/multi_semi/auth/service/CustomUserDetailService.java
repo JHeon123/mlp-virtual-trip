@@ -21,7 +21,7 @@ public class CustomUserDetailService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        MemberDto memberDto = memberMapper.findMemberByEmail(email)
+        MemberDto memberDto = memberMapper.findMemberForAuthByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("이메일과 비밀번호를 확인해주세요."));
 
         return CustomUser.builder()

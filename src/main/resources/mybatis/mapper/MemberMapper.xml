@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.multi.multi_semi.member.dao.MemberMapper">
 
-    <select id="findMemberByNo" resultType="MemberDto">
+    <select id="findMemberByNo" resultType="MemberResDto">
         SELECT
             no, id, email, pwd, name, phone, addr, intro, role, uuid
         FROM mem
@@ -12,7 +12,7 @@
 
     </select>
 
-    <select id="findMemberById" resultType="MemberDto">
+    <select id="findMemberById" resultType="MemberResDto">
         SELECT
             no, id, email, pwd, name, phone, addr, intro, role, uuid
         FROM mem
@@ -20,7 +20,14 @@
 
     </select>
 
-    <select id="findMemberByEmail" resultType="MemberDto">
+    <select id="findMemberByEmail" resultType="MemberResDto">
+        SELECT
+            no, id, email, pwd, name, phone, addr, intro, role, uuid
+        FROM mem
+        WHERE email = #{email}
+    </select>
+
+    <select id="findMemberForAuthByEmail" resultType="MemberDto">
         SELECT
             no, id, email, pwd, name, phone, addr, intro, role, uuid
         FROM mem
@@ -47,7 +54,7 @@
         where no = #{no}
     </update>
 
-    <update id="updateMemberInfo" parameterType="UpdateMemberReqDto">
+    <update id="updateMemberInfo" parameterType="MemberReqDto">
         UPDATE mem
         <set>
             <if test="id != null">id = #{id},</if>
@@ -60,12 +67,6 @@
             <if test="intro != null">intro = #{intro},</if>
         </set>
         WHERE email = #{email}
-    </update>
-
-    <update id="updateMemberPwd" parameterType="UpdateMemberReqDto">
-        update mem
-        set pwd = #{pwd}
-        where email = #{email}
     </update>
 
     <delete id="deleteMemberByEmail">

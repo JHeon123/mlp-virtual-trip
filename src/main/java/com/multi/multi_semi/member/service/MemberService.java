@@ -1,9 +1,11 @@
 package com.multi.multi_semi.member.service;
 
 
+import com.multi.multi_semi.common.exception.MemberNotFoundException;
 import com.multi.multi_semi.member.dao.MemberMapper;
 import com.multi.multi_semi.member.dto.MemberDto;
-import com.multi.multi_semi.member.dto.req.UpdateMemberReqDto;
+import com.multi.multi_semi.member.dto.req.MemberReqDto;
+import com.multi.multi_semi.member.dto.res.MemberResDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -19,41 +21,43 @@ public class MemberService {
     private final MemberMapper memberMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public Optional<MemberDto> findMemberByNo(Long no) {
-        Optional<MemberDto> memberDto = memberMapper.findMemberByNo(no);
-        return memberDto;
+    public MemberResDto findMemberByEmail(String email) {
+        Optional<MemberResDto> memberResDto = memberMapper.findMemberByEmail(email);
+
+        if(memberResDto.isEmpty()){
+            throw new MemberNotFoundException("회원정보를 찾을 수 없습니다");
+        }
+
+        return memberResDto.get();
     }
 
-    public Optional<MemberDto> findMemberByEmail(String email) {
-        Optional<MemberDto> memberDto = memberMapper.findMemberByEmail(email);
-        return memberDto;
+    public MemberResDto findMemberByNo(Long no) {
+        Optional<MemberResDto> memberResDto = memberMapper.findMemberByNo(no);
+
+        if(memberResDto.isEmpty()){
+            throw new MemberNotFoundException("회원정보를 찾을 수 없습니다");
+        }
+
+        return memberResDto.get();
     }
 
-    public int updateMemberInfo(String email, UpdateMemberReqDto updateMemberReqDto) {
+    public void updateMemberInfo(String email, MemberReqDto updateRequest) {
         MemberDto memberDto = new MemberDto();
         memberDto.setEmail(email);
 
-        memberDto.setId(updateMemberReqDto.getId());
-        memberDto.setName(updateMemberReqDto.getName());
-        memberDto.setAddr(updateMemberReqDto.getAddr());
-        memberDto.setPhone(updateMemberReqDto.getPhone());
-        memberDto.setIntro(updateMemberReqDto.getIntro());
+        memberDto.setId(updateRequest.getId());
+        memberDto.setName(updateRequest.getName());
+        memberDto.setAddr(updateRequest.getAddr());
+        memberDto.setPhone(updateRequest.getPhone());
+        memberDto.setIntro(updateRequest.getIntro());
 
-        String newPassword = updateMemberReqDto.getPwd();
+        // 클라이언트가 비밀번호를 입력하였으면 수정. 입력하지 않았으면 기존 비밀번호 유지
+        String newPassword = updateRequest.getPwd();
         if (newPassword != null && !newPassword.isEmpty()) {
             memberDto.setPwd(passwordEncoder.encode(newPassword));
         }
 
-        int result = memberMapper.updateMemberInfo(memberDto);
-        return result;
-    }
-
-    public int updateMemberPwd(String email, UpdateMemberReqDto updateMemberReqDto) {
-        MemberDto memberDto = new MemberDto();
-        memberDto.setEmail(email);
-        memberDto.setPwd(passwordEncoder.encode(updateMemberReqDto.getPwd()));
-        int result = memberMapper.updateMemberPwd(memberDto);
-        return result;
+        memberMapper.updateMemberInfo(memberDto);
     }
 
     public int deleteMemberByEmail(String email) {

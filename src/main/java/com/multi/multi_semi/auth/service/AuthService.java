@@ -37,7 +37,7 @@ public class AuthService {
         if(memberReqDto.getPwd() == null || memberReqDto.getPwd().isEmpty() || memberReqDto.getPwd().length() < 8){
             throw new InvalidPasswordException("비밀번호는 8자리 이상이어야 합니다.");
         }
-        if(memberMapper.findMemberByEmail(memberReqDto.getEmail()).isPresent()){
+        if(memberMapper.findMemberForAuthByEmail(memberReqDto.getEmail()).isPresent()){
             throw new DuplicateUserEmailException("중복된 이메일입니다. 다른 이메일로 시도해주세요.");
         }
         if(memberMapper.findMemberById(memberReqDto.getId()).isPresent()){
