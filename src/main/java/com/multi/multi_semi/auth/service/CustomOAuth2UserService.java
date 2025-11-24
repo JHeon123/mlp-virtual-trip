@@ -96,12 +96,4 @@ public class CustomOAuth2UserService extends DefaultOAuth2UserService {
         // 5. CustomUser(UserDetails)와 OAuth2User 정보를 래핑하여 반환
         return new CustomOAuth2UserWrapper(customUser, attributes);
     }
-
-    /*
-    --- MemberMapper.xml에 이 쿼리 추가가 필요할 수 있습니다 ---
-    <insert id="insertOAuthMember" parameterType="com.multi.restproduct.member.dto.MemberDto">
-        INSERT INTO member (member_id, member_email, member_name, member_password, member_role)
-        VALUES (#{memberId}, #{memberEmail}, #{memberName}, #{memberPassword}, #{memberRole})
-    </insert>
-    */
 }

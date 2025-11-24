@@ -25,6 +25,7 @@ import java.util.stream.Collectors;
 public class TokenProvider {
 
     public static final String AUTHORITIES_KEY = "auth";  // 클레임에서 권한정보담을키
+    public static final String MEMBER_NO_KEY = "no";
     private static final long ACCESS_TOKEN_EXPIRE_TIME = 1000 * 60 * 1;     //60분
     private static final long REFRESH_TOKEN_EXPIRE_TIME = 1000L * 60 * 60 * 24; //1000L * 60 * 60 * 24 * 1;  // 1일
 
@@ -41,7 +42,7 @@ public class TokenProvider {
         System.out.println("   ISSUER     -------------" + ISSUER);
     }
 
-    public String generateToken(String memberEmail, List<String> roles, String code){
+    public String generateToken(Long no, String memberEmail, List<String> roles, String code){
 
         // 페이로드에 넣을 클레임 생성 및 이메일 삽입
         // 역할은 엑세스 토큰에만 넣고, 리프레시 토큰엔 안넣음
@@ -55,6 +56,10 @@ public class TokenProvider {
         if(code.equals("A")){
             tokenExpirationTime = new Date(now + ACCESS_TOKEN_EXPIRE_TIME);
             claims.put(AUTHORITIES_KEY, String.join(",", roles)); // 엑세스 토큰에 역할 넣기
+            // [수정] 엑세스 토큰에 "no" 클레임 추가
+            if (no != null) {
+                claims.put(MEMBER_NO_KEY, no);
+            }
         }
         else if(code.equals("R")){
             tokenExpirationTime = new Date(now + REFRESH_TOKEN_EXPIRE_TIME);
@@ -116,7 +121,15 @@ public class TokenProvider {
 
         log.info("[TokenProvider] authorities: {}", authorities); // 권한 로그
 
+        // [수정] "no" 클레임 추출 (Long 타입으로)
+        Long no = claims.get(MEMBER_NO_KEY, Long.class);
+        if (no == null) {
+            throw new RuntimeException("필수 정보(no)가 없는 토큰입니다");
+        }
+
+
         CustomUser customUser = new CustomUser();
+        customUser.setNo(no);
         customUser.setEmail(claims.getSubject()); // 클레임에서 이메일 추출해서 set
         customUser.setAuthorities(authorities); // 추출한 권한 set
 

@@ -26,7 +26,7 @@ public class FrontAuthController {
     }
 
     // OAuth2 성공 시 리디렉션될 콜백 페이지 반환
-    // SecurityConfig에서 permitAll()한 /oauth-redirect 경로입니다.
+    // SecurityConfig에서 permitAll()한 /oauth-redirect 경로
     @GetMapping("/oauth-redirect")
     public String oauthCallbackPage() {
         return "common/oauth-callback";
