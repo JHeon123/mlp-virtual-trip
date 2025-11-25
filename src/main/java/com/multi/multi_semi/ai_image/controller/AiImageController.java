@@ -103,7 +103,7 @@ public class AiImageController {
     public ResponseEntity<?> deleteAiImage(@RequestBody AiImageDto requestDto, @AuthenticationPrincipal CustomUser customUser) {
         String email = customUser.getEmail();
 
-        aiImgService.deleteAiImageByAiImageDto(email, requestDto.orgUrl());
+        aiImgService.deleteAiImageByAiImageDto(email, requestDto.getOrgUrl());
 
         return ResponseEntity.ok("Deleted successfully");
     }
