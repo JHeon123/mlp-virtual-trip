@@ -22,11 +22,10 @@ public class FrontAuthController {
 
     @GetMapping("/auth/login")
     public String loginPage() {
-        return "common/login";
+        return "members/login";
     }
 
     // OAuth2 성공 시 리디렉션될 콜백 페이지 반환
-    // SecurityConfig에서 permitAll()한 /oauth-redirect 경로
     @GetMapping("/oauth-redirect")
     public String oauthCallbackPage() {
         return "common/oauth-callback";
